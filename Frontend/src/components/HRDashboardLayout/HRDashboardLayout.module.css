@@ -1,0 +1,727 @@
+/* ==========================================================================
+   1. Core Layout Shell Structures
+   ========================================================================== */
+
+.layoutContainer {
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  color: #1e293b;
+}
+
+.mainWrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background-color: #f8fafc;
+}
+
+.contentArea {
+  flex: 1;
+  padding: 32px;
+  overflow-y: auto;
+}
+
+/* ==========================================================================
+   2. Core Navigation Sidebar & Buttons
+   ========================================================================== */
+
+.sidebar {
+  width: 260px;
+  flex-shrink: 0;
+  background-color: #211c6d;
+  color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  padding: 24px 0;
+}
+
+.logoContainer {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 24px;
+  margin-bottom: 48px;
+}
+
+.logoIcon {
+  width: 36px;
+  height: 36px;
+  background-color: #ffffff;
+  color: #211c6d;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.logoText {
+  font-size: 1.35rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.menuSection {
+  padding: 0 16px;
+}
+
+.menuTitle {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  color: rgba(255, 255, 255, 0.6);
+  text-transform: uppercase;
+  margin-bottom: 16px;
+  padding-left: 8px;
+}
+
+.menuList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.menuItem {
+  margin-bottom: 4px;
+}
+
+.sidebarMenuButton {
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  padding: 12px 16px;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.9rem;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.sidebarMenuButton:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+}
+
+.activeMenuItem .sidebarMenuButton {
+  background-color: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+}
+
+.activeMenuItem {
+  position: relative;
+}
+
+.activeMenuItem::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 16px;
+  background-color: #6366f1;
+  border-radius: 2px;
+  z-index: 2;
+}
+
+/* ==========================================================================
+   3. Application View Headers
+   ========================================================================== */
+
+.topHeader {
+  height: 80px;
+  background-color: #ffffff;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 32px;
+}
+
+.pageTitle {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.userInfo {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.userName {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #334155;
+}
+
+.userAvatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: #e0f2fe;
+  color: #0369a1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+}
+
+/* ==========================================================================
+   4. Content Grid Architecture & Cards
+   ========================================================================== */
+
+.dashboardGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.metricsRow {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+.metricCard {
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 24px;
+  position: relative;
+}
+
+.metricCardPrimary {
+  border: 2px solid #3b82f6;
+  background-color: #eff6ff;
+}
+
+.metricCard h3 {
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: #64748b;
+  margin-bottom: 16px;
+  letter-spacing: 0.05em;
+}
+
+.metricValueWrapper {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.metricValue {
+  font-size: 2.25rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.metricChange {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #10b981;
+  background-color: rgba(16, 185, 129, 0.15);
+  padding: 4px 8px;
+  border-radius: 12px;
+}
+
+.actionValue {
+  color: #ea580c;
+}
+
+.transparentCard {
+  background: transparent;
+  border: none;
+  display: flex;
+  align-items: flex-end;
+}
+
+/* ==========================================================================
+   5. Content Visualization, Progress Bars & Charts
+   ========================================================================== */
+
+.chartsRow {
+  display: grid;
+  grid-template-columns: 2fr 1.25fr;
+  gap: 24px;
+}
+
+.chartContainer {
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+}
+
+.chartContainer h3 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 24px;
+  color: #1e293b;
+}
+
+.chartPlaceholder {
+  height: 240px;
+  display: flex;
+  align-items: flex-end;
+  width: 100%;
+}
+
+.barGroupWrapper {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  justify-content: space-between;
+  align-items: flex-end;
+  border-bottom: 2px solid #f1f5f9;
+  padding-bottom: 4px;
+}
+
+.barColumn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  height: 100%;
+  width: 60px;
+  gap: 12px;
+}
+
+.chartBarElement {
+  width: 28px;
+  border-radius: 6px 6px 0 0;
+  transition: height 0.3s ease;
+}
+
+.barDefaultColor {
+  background-color: #5d55fa; 
+}
+
+.barAccentColor {
+  background-color: #3b82f6; 
+}
+
+.chartBarLabel {
+  font-size: 0.8rem;
+  color: #94a3b8;
+  font-weight: 500;
+}
+
+/* Department Metrics Flex Layout with Horizontal Progress Bars */
+.departmentMetricsFlex {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  justify-content: center;
+  flex: 1;
+}
+
+.deptMetricRow {
+  display: grid;
+  grid-template-columns: 100px 1fr 30px;
+  align-items: center;
+  gap: 16px;
+}
+
+.deptName {
+  font-size: 0.95rem;
+  color: #475569;
+  font-weight: 500;
+}
+
+.progressBarContainer {
+  height: 12px;
+  background-color: #f1f5f9;
+  border-radius: 9999px;
+  overflow: hidden;
+  width: 100%;
+}
+
+.progressBarFill {
+  height: 100%;
+  border-radius: 9999px;
+  transition: width 0.4s ease;
+}
+
+.deptCount {
+  font-size: 0.95rem;
+  color: #0f172a;
+  font-weight: 700;
+  text-align: right;
+}
+
+.chartPlaceholderVertical {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+}
+
+.trendGraphContainer {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.svgTrendLine {
+  width: 100%;
+  height: 120px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.graphTimelineLabels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  color: #94a3b8;
+}
+
+/* ==========================================================================
+   6. Data Tables & Status Indicators
+   ========================================================================== */
+
+.activityStream h3 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 20px;
+  margin-top: 10px;
+}
+
+.activityTable {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.activityTable th, 
+.activityTable td {
+  text-align: left;
+  padding: 16px;
+  border-bottom: 1px solid #e2e8f0;
+  font-size: 0.9rem;
+}
+
+.activityTable th {
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: #64748b;
+  letter-spacing: 0.05em;
+  background-color: #f1f5f9;
+}
+
+.activityTable td {
+  color: #334155;
+}
+
+.activityTable td strong {
+  color: #0f172a;
+  font-weight: 700;
+}
+
+.activityTable tr:last-child td {
+  border-bottom: none;
+}
+
+.timeLink {
+  color: #4c46cc;
+}
+
+.statusCommitted {
+  color: #0f9266; /* Fixed green matching exact original layout color requirements */
+  font-weight: 600;
+}
+
+.statusLabel {
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  display: inline-block;
+}
+
+.statusActive {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.statusOnboard {
+  background-color: #ffedd5;
+  color: #9a3412;
+}
+
+.pillPaidBadge {
+  border: 2px solid #10b981;
+  color: #10b981;
+  padding: 4px 14px;
+  border-radius: 16px;
+  font-weight: 700;
+  font-size: 0.8rem;
+  background-color: #f0fdf4;
+}
+
+.tableInlineActionLink {
+  color: #4c46cc;
+  font-size: 0.88rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+/* ==========================================================================
+   7. Action Toolbars, Filter Controls & Buttons
+   ========================================================================== */
+
+.actionFilterBar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  width: 100%;
+}
+
+.filterInput {
+  width: 320px;
+  padding: 10px 16px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  outline: none;
+  font-size: 0.9rem;
+}
+
+.filterInput:focus {
+  border-color: #4c46cc;
+}
+
+.primaryActionButton, 
+.primaryActionButtonWidth {
+  padding: 10px 20px;
+  background-color: #4c46cc;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.primaryActionButtonWidth {
+  width: 100%;
+  height: 48px;
+  margin-top: 12px;
+}
+
+.successActionButton {
+  padding: 12px 24px;
+  background-color: #10b981;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.secondaryActionButton {
+  padding: 12px 24px;
+  background-color: white;
+  color: #334155;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.inlineTableButton {
+  padding: 6px 14px;
+  background-color: #4c46cc;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.secondaryTableButton {
+  padding: 6px 14px;
+  background-color: white;
+  color: #4c46cc;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.staticDateBadge {
+  padding: 10px 16px;
+  background-color: white;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.rightActionButtonGroup {
+  display: flex;
+  gap: 12px;
+}
+
+/* ==========================================================================
+   8. Specific View Helpers (Subviews, Inspector, & Formats)
+   ========================================================================== */
+
+.emptyState {
+  padding: 40px;
+  text-align: center;
+  color: #94a3b8;
+}
+
+.userColumnCell {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.subTextEmail {
+  font-size: 0.8rem;
+  color: #64748b;
+  font-weight: 400;
+}
+
+.warnText {
+  color: #f59e0b !important;
+}
+
+.operationalContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  justify-content: center;
+  height: 100%;
+}
+
+.hugeHighlightedValue {
+  font-size: 2.25rem;
+  font-weight: 700;
+  color: #4c46cc;
+}
+
+.complianceSafeBadge {
+  font-size: 0.85rem;
+  color: #10b981;
+  font-weight: 600;
+}
+
+.badgeLabelPurple {
+  background-color: #e0e7ff;
+  color: #4338ca;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+
+.tagFlexContainer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.miniTag {
+  background-color: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  color: #334155;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 0.82rem;
+}
+
+.inspectorWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin-top: 8px;
+}
+
+.inspectorInputRead {
+  background-color: white;
+  border: 2px solid #4c46cc !important;
+  font-weight: 700;
+  text-align: left;
+}
+
+.checkboxControlGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.groupLabel {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #475569;
+  margin-bottom: 4px;
+}
+
+.checkLabel {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #0f172a;
+  cursor: pointer;
+}
+
+.checkLabel input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: #4c46cc;
+}
+
+.disabledText {
+  color: #94a3b8;
+  opacity: 0.6;
+}
+
+.inputGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.inputGroup label {
+  font-size: 0.87rem;
+  font-weight: 500;
+  color: #334155;
+}
+
+.inputGroup input {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 1rem;
+  color: #0f172a;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.inputGroup input:focus {
+  border-color: #4c46cc;
+  box-shadow: 0 0 0 3px rgba(76, 70, 204, 0.15);
+}
