@@ -1,22 +1,37 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
-const Role = require('../models/Role'); 
+const Role = require('../models/Role');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'fallback_secret_key';
 
+const ROLE_NAME_MAP = {
+    admin: 'Super Admin',
+    hr: 'HR',
+    employee: 'Employee',
+};
+
+const resolveRoleName = (inputRole) => {
+    const normalized = String(inputRole || '').trim().toLowerCase();
+    return ROLE_NAME_MAP[normalized] || inputRole;
+};
+
 const authController = {
-    // 1. SIGNUP LOGIC
     signup: async (req, res) => {
         try {
-            const { name, email, password, roleName } = req.body;
+            const { name, email, password, role, roleName } = req.body;
+            const requestedRole = roleName || role;
+            const resolvedRoleName = resolveRoleName(requestedRole);
 
-            const targetRole = await Role.findOne({ name: roleName, isActive: true });
-            if (!targetRole) {
-                return res.status(400).json({ message: `Role '${roleName}' does not exist or is inactive.` });
+            if (!resolvedRoleName) {
+                return res.status(400).json({ message: 'Invalid role. Must be admin, employee, or hr.' });
             }
 
-            // Check if user already exists
+            const targetRole = await Role.findOne({ name: resolvedRoleName, isActive: true });
+            if (!targetRole) {
+                return res.status(400).json({ message: `Role '${requestedRole}' is not configured.` });
+            }
+
             const existingUser = await User.findOne({ email });
             if (existingUser) {
                 return res.status(400).json({ message: 'User already exists' });
@@ -29,19 +44,32 @@ const authController = {
                 email,
                 password: hashedPassword,
                 role: targetRole._id,
-                isActive: true
+                isActive: true,
             });
 
             await newUser.save();
 
+            const token = jwt.sign(
+                {
+                    userId: newUser._id,
+                    name: newUser.name,
+                    roleName: targetRole.name,
+                    permissions: targetRole.permissions,
+                },
+                JWT_SECRET,
+                { expiresIn: '1d' }
+            );
+
             res.status(201).json({
                 message: 'User registered successfully',
-                user: { 
-                    id: newUser._id, 
-                    name: newUser.name, 
-                    email: newUser.email, 
-                    role: targetRole.name 
-                }
+                token,
+                user: {
+                    id: newUser._id,
+                    name: newUser.name,
+                    email: newUser.email,
+                    role: targetRole.name,
+                    permissions: targetRole.permissions,
+                },
             });
         } catch (error) {
             console.error('Signup error:', error);
@@ -49,7 +77,6 @@ const authController = {
         }
     },
 
-    // 2. LOGIN LOGIC
     login: async (req, res) => {
         try {
             const { email, password } = req.body;
@@ -67,12 +94,13 @@ const authController = {
             user.lastLogin = new Date();
             await user.save();
 
+            const roleName = user.role?.name || 'Employee';
             const token = jwt.sign(
-                { 
-                    userId: user._id, 
+                {
+                    userId: user._id,
                     name: user.name,
-                    roleName: user.role.name,
-                    permissions: user.role.permissions
+                    roleName,
+                    permissions: user.role?.permissions || [],
                 },
                 JWT_SECRET,
                 { expiresIn: '1d' }
@@ -85,15 +113,15 @@ const authController = {
                     id: user._id,
                     name: user.name,
                     email: user.email,
-                    role: user.role.name,
-                    permissions: user.role.permissions
-                }
+                    role: roleName,
+                    permissions: user.role?.permissions || [],
+                },
             });
         } catch (error) {
             console.error('Login error:', error);
             res.status(500).json({ message: 'Server error during login', error: error.message });
         }
-    }
+    },
 };
 
 module.exports = authController;

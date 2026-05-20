@@ -41,4 +41,18 @@ const checkPermission = (requiredPermission) => {
     };
 };
 
-module.exports = { verifyToken, checkPermission };
+const authorizeRoles = (...allowedRoles) => {
+    return (req, res, next) => {
+        const userRole = String(req.user?.roleName || req.user?.role || '').toLowerCase();
+
+        if (!userRole || !allowedRoles.includes(userRole)) {
+            return res.status(403).json({
+                message: `Access Denied. Role '${req.user?.roleName || req.user?.role || 'unknown'}' is unauthorized.`,
+            });
+        }
+
+        next();
+    };
+};
+
+module.exports = { verifyToken, checkPermission, authorizeRoles };
