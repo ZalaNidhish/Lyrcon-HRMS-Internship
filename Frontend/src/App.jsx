@@ -37,8 +37,6 @@ function App() {
     enterDashboard(session?.user || null, session?.token);
   };
 
-  // Signup flow removed — users should be created via admin/seeders
-
   const handleLogout = () => {
     window.localStorage.removeItem('corehr_token');
     window.localStorage.removeItem('corehr_user');
