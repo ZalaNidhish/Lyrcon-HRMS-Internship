@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import styles from "./LoginPage.module.css";
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+
 const GoogleIcon = () => (
   <svg width="20" height="20" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
     <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
@@ -19,21 +21,43 @@ const PayrollIcon = () => (
 );
 
 export default function LoginPage({ onLoginSuccess }) {
-  const [email, setEmail] = useState("prince@company.com");
-  const [password, setPassword] = useState("••••••••••••••");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+    setError('');
     
-    // Smooth transition simulation for dashboard login success pipeline
-    setTimeout(() => {
-      setLoading(false);
-      if (onLoginSuccess) {
-        onLoginSuccess(); // Routes the component layout swap inside App.jsx
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Unable to sign in right now.');
       }
-    }, 600);
+
+      window.localStorage.setItem('corehr_token', data.token);
+      window.localStorage.setItem('corehr_user', JSON.stringify(data.user));
+      window.localStorage.setItem('corehr_role', data.user?.role || '');
+
+      if (onLoginSuccess) {
+        onLoginSuccess(data);
+      }
+    } catch (loginError) {
+      setError(loginError.message || 'Unable to sign in right now.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -78,6 +102,8 @@ export default function LoginPage({ onLoginSuccess }) {
             <h2 className={styles.welcomeTitle}>Welcome back</h2>
             <p className={styles.welcomeSub}>Enter your details to access your dashboard.</p>
           </div>
+
+          {error ? <div className={styles.authError}>{error}</div> : null}
 
           {/* Google SSO Button */}
           <button className={styles.googleBtn} type="button">

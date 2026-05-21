@@ -4,12 +4,13 @@ import styles from '../HRDashboardLayout.module.css';
 const Sidebar = ({ activeTab, setActiveTab }) => {
   const menuItems = [
     { label: 'Dashboard', id: 'dashboard' },
-    { label: 'Employees', id: 'employees' },
-    { label: 'Attendance', id: 'attendance' },
+    { label: 'Employee Overview', id: 'employees' },
+    { label: 'Attendance Management', id: 'attendance' },
     { label: 'Leave Management', id: 'leave' },
     { label: 'Payroll', id: 'payroll' },
-    { label: 'Roles & Permissions', id: 'roles' },
-    { label: 'Settings', id: 'settings' }
+    { label: 'Recruitment', id: 'recruitment' },
+    { label: 'Team Monitoring', id: 'team-monitoring' },
+    { label: 'Announcements', id: 'announcements' }
   ];
 
   return (
@@ -17,7 +18,7 @@ const Sidebar = ({ activeTab, setActiveTab }) => {
       {/* Brand Identity Branding Header */}
       <div className={styles.logoContainer}>
         <div className={styles.logoIcon}>C</div>
-        <span className={styles.logoText}>CoreHR</span>
+        <span className={styles.logoText}>HR</span>
       </div>
       
       {/* Navigation Links Routing Engine */}

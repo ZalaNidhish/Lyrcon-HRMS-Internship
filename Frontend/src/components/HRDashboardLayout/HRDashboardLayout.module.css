@@ -6,20 +6,21 @@
   display: flex;
   min-height: 100vh;
   width: 100%;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-  color: #1e293b;
+  font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  color: #0f172a;
+  background: #eef2f7;
 }
 
 .mainWrapper {
   flex: 1;
   display: flex;
   flex-direction: column;
-  background-color: #f8fafc;
+  background: linear-gradient(180deg, #f8fbff 0%, #eef2f7 100%);
 }
 
 .contentArea {
   flex: 1;
-  padding: 32px;
+  padding: 28px;
   overflow-y: auto;
 }
 
@@ -28,13 +29,14 @@
    ========================================================================== */
 
 .sidebar {
-  width: 260px;
+  width: 274px;
   flex-shrink: 0;
-  background-color: #211c6d;
+  background: linear-gradient(180deg, #201b61 0%, #1b174f 100%);
   color: #ffffff;
   display: flex;
   flex-direction: column;
-  padding: 24px 0;
+  padding: 20px 0;
+  box-shadow: 1px 0 0 rgba(255, 255, 255, 0.05), 0 12px 28px rgba(15, 23, 42, 0.18);
 }
 
 .logoContainer {
@@ -42,24 +44,24 @@
   align-items: center;
   gap: 12px;
   padding: 0 24px;
-  margin-bottom: 48px;
+  margin-bottom: 40px;
 }
 
 .logoIcon {
-  width: 36px;
-  height: 36px;
+  width: 30px;
+  height: 30px;
   background-color: #ffffff;
   color: #211c6d;
   border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.25rem;
+  font-size: 1rem;
   font-weight: 700;
 }
 
 .logoText {
-  font-size: 1.35rem;
+  font-size: 1.15rem;
   font-weight: 700;
   letter-spacing: -0.02em;
 }
@@ -93,23 +95,23 @@
   text-align: left;
   background: none;
   border: none;
-  padding: 12px 16px;
-  color: rgba(255, 255, 255, 0.8);
+  padding: 11px 16px;
+  color: rgba(255, 255, 255, 0.74);
   font-size: 0.9rem;
   font-weight: 500;
   font-family: inherit;
   cursor: pointer;
-  border-radius: 8px;
-  transition: background-color 0.2s ease, color 0.2s ease;
+  border-radius: 12px;
+  transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
 }
 
 .sidebarMenuButton:hover {
-  background-color: rgba(255, 255, 255, 0.1);
+  background-color: rgba(255, 255, 255, 0.08);
   color: #ffffff;
 }
 
 .activeMenuItem .sidebarMenuButton {
-  background-color: rgba(255, 255, 255, 0.12);
+  background: linear-gradient(90deg, rgba(99, 102, 241, 0.28), rgba(99, 102, 241, 0.1));
   color: #ffffff;
 }
 
@@ -120,12 +122,12 @@
 .activeMenuItem::before {
   content: '';
   position: absolute;
-  left: 0;
+  left: 8px;
   top: 50%;
   transform: translateY(-50%);
-  width: 4px;
-  height: 16px;
-  background-color: #6366f1;
+  width: 3px;
+  height: 20px;
+  background-color: #7c83ff;
   border-radius: 2px;
   z-index: 2;
 }
@@ -135,25 +137,27 @@
    ========================================================================== */
 
 .topHeader {
-  height: 80px;
+  height: 72px;
   background-color: #ffffff;
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid #e5eaf2;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 32px;
+  padding: 0 28px;
+  box-shadow: 0 1px 0 rgba(15, 23, 42, 0.03);
 }
 
 .pageTitle {
-  font-size: 1.5rem;
+  font-size: 1.18rem;
   font-weight: 700;
   color: #0f172a;
+  letter-spacing: -0.02em;
 }
 
 .userInfo {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 14px;
 }
 
 .userName {
@@ -163,15 +167,31 @@
 }
 
 .userAvatar {
-  width: 40px;
-  height: 40px;
+  width: 34px;
+  height: 34px;
   border-radius: 50%;
-  background-color: #e0f2fe;
-  color: #0369a1;
+  background: #eef2ff;
+  color: #6366f1;
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: 700;
+}
+
+.logoutButton {
+  border: 1px solid #dbe3ef;
+  background: #ffffff;
+  color: #334155;
+  border-radius: 999px;
+  padding: 9px 15px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.logoutButton:hover {
+  background: #f8fafc;
+  border-color: #94a3b8;
 }
 
 /* ==========================================================================
@@ -181,34 +201,35 @@
 .dashboardGrid {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 20px;
 }
 
 .metricsRow {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 24px;
+  gap: 18px;
 }
 
 .metricCard {
   background-color: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
-  padding: 24px;
+  border: 1px solid #e6ebf3;
+  border-radius: 16px;
+  padding: 22px 24px;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
   position: relative;
 }
 
 .metricCardPrimary {
-  border: 2px solid #3b82f6;
-  background-color: #eff6ff;
+  border: 1px solid #cfd9ff;
+  background: linear-gradient(180deg, #f7f9ff 0%, #eef2ff 100%);
 }
 
 .metricCard h3 {
-  font-size: 0.8rem;
+  font-size: 0.72rem;
   font-weight: 600;
   text-transform: uppercase;
   color: #64748b;
-  margin-bottom: 16px;
+  margin-bottom: 14px;
   letter-spacing: 0.05em;
 }
 
@@ -219,7 +240,7 @@
 }
 
 .metricValue {
-  font-size: 2.25rem;
+  font-size: 2rem;
   font-weight: 700;
   color: #0f172a;
 }
@@ -251,22 +272,23 @@
 .chartsRow {
   display: grid;
   grid-template-columns: 2fr 1.25fr;
-  gap: 24px;
+  gap: 18px;
 }
 
 .chartContainer {
   background-color: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
-  padding: 24px;
+  border: 1px solid #e6ebf3;
+  border-radius: 16px;
+  padding: 22px 24px;
   display: flex;
   flex-direction: column;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
 }
 
 .chartContainer h3 {
-  font-size: 1.1rem;
+  font-size: 1rem;
   font-weight: 600;
-  margin-bottom: 24px;
+  margin-bottom: 22px;
   color: #1e293b;
 }
 
@@ -283,7 +305,7 @@
   height: 100%;
   justify-content: space-between;
   align-items: flex-end;
-  border-bottom: 2px solid #f1f5f9;
+  border-bottom: 1px solid #eef2f7;
   padding-bottom: 4px;
 }
 
@@ -299,16 +321,16 @@
 
 .chartBarElement {
   width: 28px;
-  border-radius: 6px 6px 0 0;
+  border-radius: 8px 8px 0 0;
   transition: height 0.3s ease;
 }
 
 .barDefaultColor {
-  background-color: #5d55fa; 
+  background-color: #635bff; 
 }
 
 .barAccentColor {
-  background-color: #3b82f6; 
+  background-color: #4f8cff; 
 }
 
 .chartBarLabel {
@@ -340,8 +362,8 @@
 }
 
 .progressBarContainer {
-  height: 12px;
-  background-color: #f1f5f9;
+  height: 10px;
+  background-color: #eef2f7;
   border-radius: 9999px;
   overflow: hidden;
   width: 100%;
@@ -403,9 +425,10 @@
   width: 100%;
   border-collapse: collapse;
   background-color: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
+  border: 1px solid #e6ebf3;
+  border-radius: 16px;
   overflow: hidden;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
 }
 
 .activityTable th, 
@@ -417,12 +440,12 @@
 }
 
 .activityTable th {
-  font-size: 0.8rem;
+  font-size: 0.72rem;
   font-weight: 600;
   text-transform: uppercase;
   color: #64748b;
   letter-spacing: 0.05em;
-  background-color: #f1f5f9;
+  background-color: #f8fafc;
 }
 
 .activityTable td {
@@ -439,11 +462,11 @@
 }
 
 .timeLink {
-  color: #4c46cc;
+  color: #4f46e5;
 }
 
 .statusCommitted {
-  color: #0f9266; /* Fixed green matching exact original layout color requirements */
+  color: #0f9266;
   font-weight: 600;
 }
 
@@ -456,8 +479,8 @@
 }
 
 .statusActive {
-  background-color: #d1fae5;
-  color: #065f46;
+  background-color: #dcfce7;
+  color: #166534;
 }
 
 .statusOnboard {
@@ -466,7 +489,7 @@
 }
 
 .pillPaidBadge {
-  border: 2px solid #10b981;
+  border: 1px solid #10b981;
   color: #10b981;
   padding: 4px 14px;
   border-radius: 16px;
@@ -510,10 +533,10 @@
 .primaryActionButton, 
 .primaryActionButtonWidth {
   padding: 10px 20px;
-  background-color: #4c46cc;
+  background: linear-gradient(180deg, #5d55fa 0%, #4b46d8 100%);
   color: white;
   border: none;
-  border-radius: 8px;
+  border-radius: 10px;
   font-weight: 600;
   cursor: pointer;
 }
@@ -529,7 +552,7 @@
   background-color: #10b981;
   color: white;
   border: none;
-  border-radius: 8px;
+  border-radius: 10px;
   font-weight: 600;
   cursor: pointer;
 }
@@ -538,18 +561,18 @@
   padding: 12px 24px;
   background-color: white;
   color: #334155;
-  border: 1px solid #cbd5e1;
-  border-radius: 8px;
+  border: 1px solid #dbe3ef;
+  border-radius: 10px;
   font-weight: 600;
   cursor: pointer;
 }
 
 .inlineTableButton {
   padding: 6px 14px;
-  background-color: #4c46cc;
+  background: linear-gradient(180deg, #5d55fa 0%, #4b46d8 100%);
   color: white;
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
   font-weight: 500;
   cursor: pointer;
 }
@@ -558,8 +581,8 @@
   padding: 6px 14px;
   background-color: white;
   color: #4c46cc;
-  border: 1px solid #cbd5e1;
-  border-radius: 6px;
+  border: 1px solid #dbe3ef;
+  border-radius: 8px;
   font-weight: 500;
   cursor: pointer;
 }
@@ -615,7 +638,7 @@
 .hugeHighlightedValue {
   font-size: 2.25rem;
   font-weight: 700;
-  color: #4c46cc;
+  color: #4f46e5;
 }
 
 .complianceSafeBadge {
@@ -658,7 +681,7 @@
 
 .inspectorInputRead {
   background-color: white;
-  border: 2px solid #4c46cc !important;
+  border: 1px solid #cfd8e3 !important;
   font-weight: 700;
   text-align: left;
 }
@@ -689,7 +712,7 @@
 .checkLabel input[type="checkbox"] {
   width: 18px;
   height: 18px;
-  accent-color: #4c46cc;
+  accent-color: #4f46e5;
 }
 
 .disabledText {
@@ -722,6 +745,6 @@
 }
 
 .inputGroup input:focus {
-  border-color: #4c46cc;
-  box-shadow: 0 0 0 3px rgba(76, 70, 204, 0.15);
+  border-color: #4f46e5;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12);
 }

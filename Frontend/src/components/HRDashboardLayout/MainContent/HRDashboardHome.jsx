@@ -2,13 +2,12 @@ import React from 'react';
 import styles from '../HRDashboardLayout.module.css';
 
 const HRDashboardHome = () => {
-  // Chart configurations matching the required design layout
   const chartBars = [
     { label: 'Mon', height: '55%', isAccent: false },
     { label: 'Tue', height: '73%', isAccent: false },
     { label: 'Wed', height: '80%', isAccent: false },
     { label: 'Thu', height: '70%', isAccent: false },
-    { label: 'Fri', height: '60%', isAccent: true } // Highlighted accent bar
+    { label: 'Fri', height: '60%', isAccent: true }
   ];
 
   const departments = [
@@ -22,22 +21,21 @@ const HRDashboardHome = () => {
       {/* Metrics Summary Row */}
       <div className={styles.metricsRow}>
         <div className={`${styles.metricCard} ${styles.metricCardPrimary}`}>
-          <h3>GLOBAL HEADCOUNT</h3>
+          <h3>TASK COMPLETED</h3>
           <div className={styles.metricValueWrapper}>
             <span className={styles.metricValue}>142</span>
-            <span className={styles.metricChange}>+4.2%</span>
           </div>
         </div>
         <div className={styles.metricCard}>
-          <h3>TODAY'S ATTENDANCE RATE</h3>
+          <h3>AVERAGE PRODUCTIVITY</h3>
           <div className={styles.metricValueWrapper}>
-            <span className={styles.metricValue}>96.4%</span>
+            <span className={styles.metricValue}>86.4%</span>
           </div>
         </div>
         <div className={styles.metricCard}>
-          <h3>PENDING ACTIONS</h3>
+          <h3>TEAMS ACTIVE</h3>
           <div className={styles.metricValueWrapper}>
-            <span className={`${styles.metricValue} ${styles.actionValue}`}>7 Requests</span>
+            <span className={`${styles.metricValue} ${styles.actionValue}`}>7</span>
           </div>
         </div>
       </div>
@@ -46,7 +44,7 @@ const HRDashboardHome = () => {
       <div className={styles.chartsRow}>
         {/* Weekly Clock-In Concurrency Bar Chart */}
         <div className={styles.chartContainer}>
-          <h3>Weekly Clock-In Concurrency</h3>
+          <h3>Team Performance Overview</h3>
           <div className={styles.chartPlaceholder}>
             <div className={styles.barGroupWrapper}>
               {chartBars.map((bar, index) => (
@@ -64,7 +62,7 @@ const HRDashboardHome = () => {
 
         {/* Department Distribution Metrics Panel */}
         <div className={styles.chartContainer}>
-          <h3>Department Distribution Metrics</h3>
+          <h3>Weekly Productivity</h3>
           <div className={styles.departmentMetricsFlex}>
             {departments.map((dept, index) => (
               <div key={index} className={styles.deptMetricRow}>
@@ -84,22 +82,22 @@ const HRDashboardHome = () => {
 
       {/* Real-Time Log Ledger Table */}
       <div className={styles.activityStream}>
-        <h3>System Activity Stream</h3>
+        <h3>Recent Leave Requests</h3>
         <table className={styles.activityTable}>
           <thead>
             <tr>
-              <th>TIMESTAMP</th>
-              <th>ACTOR</th>
-              <th>EVENT CATEGORY</th>
-              <th>STATUS OVERVIEW</th>
+              <th>EMPLOYEE</th>
+              <th>TEAM</th>
+              <th>CURRENT TASK</th>
+              <th>STATUS</th>
             </tr>
           </thead>
           <tbody>
             <tr>
-              <td className={styles.timeLink}>10:24 AM</td>
               <td><strong>Prince Ghevariya</strong></td>
-              <td>Modified Payroll Struct</td>
-              <td className={styles.statusCommitted}>Committed (₹)</td>
+              <td>Engineering</td>
+              <td>Dashboard UI</td>
+              <td className={styles.statusCommitted}>Active</td>
             </tr>
           </tbody>
         </table>

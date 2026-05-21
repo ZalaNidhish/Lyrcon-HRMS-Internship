@@ -14,6 +14,13 @@ const authController = {
                 return res.status(400).json({ message: 'Invalid email or password' });
             }
 
+            const roleName = String(user.role?.name || '').toLowerCase();
+            const allowedRoles = new Set(['hr', 'super admin']);
+
+            if (!allowedRoles.has(roleName)) {
+                return res.status(403).json({ message: 'Only the HR and admin accounts can access this dashboard.' });
+            }
+
             const isMatch = await bcrypt.compare(password, user.password);
             if (!isMatch) {
                 return res.status(400).json({ message: 'Invalid email or password' });
@@ -22,12 +29,11 @@ const authController = {
             user.lastLogin = new Date();
             await user.save();
 
-            const roleName = user.role?.name || 'Employee';
             const token = jwt.sign(
                 {
                     userId: user._id,
                     name: user.name,
-                    roleName,
+                    roleName: user.role?.name || 'HR',
                     permissions: user.role?.permissions || [],
                 },
                 JWT_SECRET,

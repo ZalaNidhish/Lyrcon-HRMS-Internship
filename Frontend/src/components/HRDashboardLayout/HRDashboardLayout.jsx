@@ -6,21 +6,27 @@ import EmployeesView from './MainContent/EmployeesView';
 import AttendanceView from './MainContent/AttendanceView';
 import LeaveView from './MainContent/LeaveView';
 import PayrollView from './MainContent/PayrollView';
-import RolesView from './MainContent/RolesView';
+import RecruitmentView from './MainContent/RecruitmentView';
+import TeamMonitoringView from './MainContent/TeamMonitoringView';
+import AnnouncementsView from './MainContent/AnnouncementsView';
 import styles from './HRDashboardLayout.module.css';
 
-const HRDashboardLayout = () => {
+const HRDashboardLayout = ({ user, onLogout }) => {
   const [activeTab, setActiveTab] = useState('dashboard');
+  const userName = user?.name || 'HR User';
+  const avatarLetter = (userName.trim()[0] || 'H').toUpperCase();
 
   const pageMeta = {
-    dashboard: { title: "HRMS Operations Intelligence", component: <HRDashboardHome /> },
-    employees: { title: "Employee Directory & Allocation", component: <EmployeesView /> },
+    dashboard: { title: "Task & Team Monitoring", component: <HRDashboardHome /> },
+    employees: { title: "Employee Overview", component: <EmployeesView /> },
     attendance: { title: "Attendance Analytics Hub", component: <AttendanceView /> },
-    leave: { title: "Leave Operations & Trends", component: <LeaveView /> },
-    payroll: { title: "Payroll Processing Pipeline", component: <PayrollView /> },
-    roles: { title: "RBAC Access Control Engine", component: <RolesView /> },
-    settings: { title: "System Configurations", component: <div className={styles.emptyState}>Settings Panel Configuration</div> }
+    leave: { title: "Leave Management", component: <LeaveView /> },
+    payroll: { title: "Payroll Management", component: <PayrollView /> },
+    recruitment: { title: "Recruitment", component: <RecruitmentView /> },
+    'team-monitoring': { title: "Team Monitoring", component: <TeamMonitoringView /> },
+    announcements: { title: "Announcements", component: <AnnouncementsView /> }
   };
+  const currentPage = pageMeta[activeTab] || pageMeta.dashboard;
 
   return (
     <div className={styles.layoutContainer}>
@@ -28,12 +34,13 @@ const HRDashboardLayout = () => {
       <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
       <div className={styles.mainWrapper}>
         <Header 
-          title={pageMeta[activeTab].title}
-          userName="Prince Ghevariya"
-          avatarLetter="A"
+          title={currentPage.title}
+          userName={userName}
+          avatarLetter={avatarLetter}
+          onLogout={onLogout}
         />
         <main className={styles.contentArea}>
-          {pageMeta[activeTab].component}
+          {currentPage.component}
         </main>
       </div>
     </div>
