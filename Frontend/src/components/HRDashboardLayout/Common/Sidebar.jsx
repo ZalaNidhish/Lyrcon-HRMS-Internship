@@ -11,7 +11,7 @@ const Sidebar = ({ activeTab, setActiveTab }) => {
     { label: 'Recruitment', id: 'recruitment' },
     { label: 'Team Monitoring', id: 'team-monitoring' },
     { label: 'Announcements', id: 'announcements' },
-    { label: 'Roles & Permissions', id: 'roles-permissions' } // Added mapping navigation routing node
+    { label: 'Roles & Permissions', id: 'roles-permissions' }, // Added mapping navigation routing node
     { label: 'Asset Management', id: 'assets' }
   ];
 
