@@ -9,6 +9,7 @@ import PayrollView from './MainContent/PayrollView';
 import RecruitmentView from './MainContent/RecruitmentView';
 import TeamMonitoringView from './MainContent/TeamMonitoringView';
 import AnnouncementsView from './MainContent/AnnouncementsView';
+import RolesPermissionsView from './MainContent/RolesPermissionsView'; // Imported RBAC Page
 import styles from './HRDashboardLayout.module.css';
 
 const HRDashboardLayout = ({ user, onLogout }) => {
@@ -16,6 +17,7 @@ const HRDashboardLayout = ({ user, onLogout }) => {
   const userName = user?.name || 'HR User';
   const avatarLetter = (userName.trim()[0] || 'H').toUpperCase();
 
+  // Unified layout router dictionary
   const pageMeta = {
     dashboard: { title: "Task & Team Monitoring", component: <HRDashboardHome /> },
     employees: { title: "Employee Overview", component: <EmployeesView /> },
@@ -24,24 +26,33 @@ const HRDashboardLayout = ({ user, onLogout }) => {
     payroll: { title: "Payroll Management", component: <PayrollView /> },
     recruitment: { title: "Recruitment", component: <RecruitmentView /> },
     'team-monitoring': { title: "Team Monitoring", component: <TeamMonitoringView /> },
-    announcements: { title: "Announcements", component: <AnnouncementsView /> }
+    announcements: { title: "Announcements", component: <AnnouncementsView /> },
+    'roles-permissions': { title: "RBAC Access Control Engine", component: <RolesPermissionsView /> } 
   };
+  
   const currentPage = pageMeta[activeTab] || pageMeta.dashboard;
 
   return (
     <div className={styles.layoutContainer}>
-      {/* Passing state hooks to sidebar for navigation triggers */}
+      {/* 1. Left Fixed Element: Always spans 100% height without scrolling */}
       <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
+      
+      {/* 2. Right Flex Wrapper: Fills remainder of screen window widths */}
       <div className={styles.mainWrapper}>
+        
+        {/* Top Header Row Panel: Stays locked at a fixed 72px height */}
         <Header 
           title={currentPage.title}
           userName={userName}
           avatarLetter={avatarLetter}
           onLogout={onLogout}
         />
+        
+        {/* 3. Independent Scroll Container Window */}
         <main className={styles.contentArea}>
           {currentPage.component}
         </main>
+        
       </div>
     </div>
   );
