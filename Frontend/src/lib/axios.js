@@ -2,7 +2,7 @@
 
 // Create a reusable Axios instance targeting your backend port
 const API = axios.create({
-    baseURL: `${import.meta.env.VITE_API_BASE_URL || (import.meta.env.DEV ? 'http://localhost:5000' : '')}/api`,
+    baseURL: `${import.meta.env.VITE_API_BASE_URL || 'https://lyrcon-hrms-internship.onrender.com'}/api`,
     headers: {
         'Content-Type': 'application/json',
     },

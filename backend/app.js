@@ -15,7 +15,27 @@ const allowedOrigins = [
 	process.env.CLIENT_URL,
 	process.env.FRONTEND_URL,
 	'https://lyrcon-hrms-internship.vercel.app',
+	'https://lyrcon-hrms-internship.onrender.com',
+	'http://localhost:5173',
+	'http://127.0.0.1:5173',
 ].filter(Boolean);
+
+const isAllowedOrigin = (origin) => {
+	if (allowedOrigins.includes(origin)) {
+		return true;
+	}
+
+	try {
+		const url = new URL(origin);
+		if (url.hostname === 'localhost' || url.hostname === '127.0.0.1') {
+			return true;
+		}
+	} catch (error) {
+		return false;
+	}
+
+	return false;
+};
 
 const startServer = async () => {
 	await connectDB();
@@ -35,7 +55,7 @@ startServer().catch((error) => {
 app.disable('x-powered-by');
 app.use(cors({
 	origin: (origin, callback) => {
-		if (!origin || allowedOrigins.length === 0 || allowedOrigins.includes(origin)) {
+		if (!origin || allowedOrigins.length === 0 || isAllowedOrigin(origin)) {
 			return callback(null, true);
 		}
 

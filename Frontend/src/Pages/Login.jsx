@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import '../assets/css/style.css';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://lyrcon-hrms-internship.onrender.com';
 
 export default function Login({ onSwitch, onLogin }) {
   const [email, setEmail] = useState('prince@company.com');

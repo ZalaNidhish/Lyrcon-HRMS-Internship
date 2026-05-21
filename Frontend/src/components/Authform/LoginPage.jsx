@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import styles from "./LoginPage.module.css";
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || (import.meta.env.DEV ? 'http://localhost:5000' : '');
+import { loginUser } from '../../lib/axios';
 
 const GoogleIcon = () => (
   <svg width="20" height="20" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
@@ -32,18 +31,10 @@ export default function LoginPage({ onLoginSuccess }) {
     setError('');
     
     try {
-      const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
-      });
+      const { data } = await loginUser({ email, password });
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || 'Unable to sign in right now.');
+      if (!data) {
+        throw new Error('Unable to sign in right now.');
       }
 
       window.localStorage.setItem('corehr_token', data.token);
