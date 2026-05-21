@@ -44,15 +44,20 @@ const seedRoles = async () => {
     ];
 
     for (const role of roles) {
-      const exists = await Role.findOne({
-        name: role.name,
-      });
+      const existing = await Role.findOne({ name: role.name });
 
-      if (!exists) {
-        await Role.create(role);
-
-        console.log(`${role.name} role created`);
+      if (existing) {
+        await Role.findOneAndUpdate(
+          { name: role.name },
+          { $set: role },
+          { new: true }
+        );
+        console.log(`${role.name} role synced`);
+        continue;
       }
+
+      await Role.create(role);
+      console.log(`${role.name} role created`);
     }
 
     console.log("Default roles seeded");

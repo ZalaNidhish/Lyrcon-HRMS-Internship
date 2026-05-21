@@ -9,6 +9,7 @@ import PayrollView from './MainContent/PayrollView';
 import RecruitmentView from './MainContent/RecruitmentView';
 import TeamMonitoringView from './MainContent/TeamMonitoringView';
 import AnnouncementsView from './MainContent/AnnouncementsView';
+import AssetsPanel from '../AssetsPanel';
 import styles from './HRDashboardLayout.module.css';
 
 const HRDashboardLayout = ({ user, onLogout }) => {
@@ -24,7 +25,8 @@ const HRDashboardLayout = ({ user, onLogout }) => {
     payroll: { title: "Payroll Management", component: <PayrollView /> },
     recruitment: { title: "Recruitment", component: <RecruitmentView /> },
     'team-monitoring': { title: "Team Monitoring", component: <TeamMonitoringView /> },
-    announcements: { title: "Announcements", component: <AnnouncementsView /> }
+    announcements: { title: "Announcements", component: <AnnouncementsView /> },
+    assets: { title: "Asset Management", component: <AssetsPanel /> },
   };
   const currentPage = pageMeta[activeTab] || pageMeta.dashboard;
 
