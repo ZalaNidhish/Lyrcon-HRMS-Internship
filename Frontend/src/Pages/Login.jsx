@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import '../assets/css/style.css';
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+import { loginUser } from '../lib/axios';
 
 export default function Login({ onSwitch, onLogin }) {
   const [email, setEmail] = useState('prince@company.com');
@@ -15,18 +14,10 @@ export default function Login({ onSwitch, onLogin }) {
     setError('');
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
-      });
+      const { data } = await loginUser({ email, password });
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || 'Unable to sign in right now.');
+      if (!data) {
+        throw new Error('Unable to sign in right now.');
       }
 
       if (typeof onLogin === 'function') {
