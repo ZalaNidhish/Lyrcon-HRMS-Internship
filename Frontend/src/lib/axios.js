@@ -2,23 +2,23 @@
 
 // Get API base URL from environment variables
 // Falls back to localhost:5000 if not defined
-const getBaseURL = () => {
-    const baseURL = import.meta.env.VITE_API_BASE_URL;
+// const getBaseURL = () => {
+//     const baseURL = import.meta.env.VITE_API_BASE_URL;
     
-    if (!baseURL) {
-        console.warn(
-            '⚠️ VITE_API_BASE_URL is not defined. Falling back to http://localhost:5000'
-        );
-        return 'http://localhost:5000';
-    }
+//     if (!baseURL) {
+//         console.warn(
+//             '⚠️ VITE_API_BASE_URL is not defined. Falling back to http://localhost:5000'
+//         );
+//         return '';
+//     }
     
-    console.log(`✅ Using API Base URL: ${baseURL}`);
-    return baseURL;
-};
+//     console.log(`✅ Using API Base URL: ${baseURL}`);
+//     return baseURL;
+// };
 
 // Create a reusable Axios instance targeting your backend
 const API = axios.create({
-    baseURL: `${getBaseURL()}/api`,
+    baseURL: `${import.meta.env.VITE_API_BASE_URL}/api`,
     headers: {
         'Content-Type': 'application/json',
     },
