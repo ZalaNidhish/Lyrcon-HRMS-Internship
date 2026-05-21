@@ -2,8 +2,9 @@ import React, { useState } from "react";
 import LoginPage from "./components/Authform/LoginPage"; 
 import HRDashboardLayout from "./components/HRDashboardLayout/HRDashboardLayout";
 import AdminDashboardLayout from "./Pages/Admin/AdminDashboardLayout";
+import EmployeeDashboardLayout from "./Pages/Employee/EmployeeDashboardLayout";
 
-const allowedRoles = new Set(['hr', 'admin']);
+const allowedRoles = new Set(['hr', 'admin', 'employee']);
 
 function readStoredSession() {
   const token = window.localStorage.getItem('corehr_token');
@@ -45,6 +46,8 @@ export default function App() {
       return;
     }
 
+    window.localStorage.setItem('corehr_role', role);
+
     setSession({
       token: authData.token,
       user: authData.user,
@@ -62,6 +65,10 @@ export default function App() {
   if (session) {
     if (session.role === 'hr') {
       return <HRDashboardLayout user={session.user} onLogout={handleLogout} />;
+    }
+
+    if (session.role === 'employee') {
+      return <EmployeeDashboardLayout user={session.user} onLogout={handleLogout} />;
     }
 
     return <AdminDashboardLayout user={session.user} onLogout={handleLogout} />;

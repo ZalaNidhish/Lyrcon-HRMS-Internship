@@ -1,5 +1,6 @@
 export const adminNavigation = [
   { key: 'dashboard', label: 'Dashboard' },
+  { key: 'users', label: 'Users' },
   { key: 'employees', label: 'Employees' },
   { key: 'attendance', label: 'Attendance' },
   { key: 'leave', label: 'Leave Management' },
@@ -10,6 +11,7 @@ export const adminNavigation = [
 
 export const adminTitleMap = {
   dashboard: 'HRMS Operations Intelligence',
+  users: 'User Provisioning Console',
   employees: 'Employee Registry Control',
   attendance: 'Attendance Analytics Hub',
   leave: 'Leave Operations & Trends',
@@ -22,6 +24,10 @@ export const adminSectionMeta = {
   dashboard: {
     eyebrow: 'EXECUTIVE SNAPSHOT',
     description: 'A clean command center for workforce, attendance, and payroll operations.',
+  },
+  users: {
+    eyebrow: 'ACCOUNT PROVISIONING',
+    description: 'Create Admin, HR, and Employee login accounts with the right role permissions.',
   },
   employees: {
     eyebrow: 'WORKFORCE REGISTRY',
@@ -73,15 +79,16 @@ export const adminLeaveBreakdown = [
 
 export const adminPayrollRows = [
   {
-    name: 'Prince Ghevariya',
-    department: 'Engineering',
-    base: '₹1,85,000.00',
-    net: '₹1,62,400.00',
+    id: 'admin-role',
+    name: 'Admin',
+    permissions: ['*'],
+    selected: true,
     status: 'Paid',
   },
   {
-    name: 'Aanya Patel',
-    department: 'Operations',
+    id: 'hr-role',
+    name: 'HR',
+    permissions: ['employee.view', 'employee.create', 'employee.edit', 'employee.delete'],
     base: '₹92,000.00',
     net: '₹84,400.00',
     status: 'Paid',
@@ -97,22 +104,41 @@ export const adminPayrollRows = [
 
 export const adminRoleRows = [
   {
-    id: '64f1a29b3c...',
-    name: 'HR',
-    permissions: ['manage_employees', 'approve_leaves', 'view_reports'],
+    id: 'admin-role',
+    name: 'Admin',
+    permissions: ['run_payroll', 'manage_roles', 'audit_logs'],
     selected: true,
   },
   {
-    id: '64f1a29b4d...',
-    name: 'Admin',
-    permissions: ['run_payroll', 'manage_roles', 'audit_logs'],
+    id: 'hr-role',
+    name: 'HR',
+    permissions: ['manage_employees', 'approve_leaves', 'view_reports'],
+    selected: false,
+  },
+  {
+    id: 'employee-role',
+    name: 'Employee',
+    permissions: ['employee.view_self'],
     selected: false,
   },
 ];
 
+export const adminPermissionCatalog = [
+  { value: '*', label: 'Full access (* wildcard)' },
+  { value: 'employee.view', label: 'View employees' },
+  { value: 'employee.create', label: 'Create employees' },
+  { value: 'employee.edit', label: 'Edit employees' },
+  { value: 'employee.delete', label: 'Delete employees' },
+  { value: 'employee.view_self', label: 'View own profile' },
+  { value: 'approve_leaves', label: 'Approve leaves' },
+  { value: 'view_reports', label: 'View reports' },
+  { value: 'run_payroll', label: 'Run payroll' },
+  { value: 'manage_roles', label: 'Manage roles' },
+  { value: 'audit_logs', label: 'Audit logs' },
+  { value: 'manage_employees', label: 'Manage employees' },
+];
+
 export const adminInitialSummary = {
-  totalEmployees: 0,
-  activeEmployees: 0,
   inactiveEmployees: 0,
   activeWorkforceRate: 0,
   assetTotal: 0,

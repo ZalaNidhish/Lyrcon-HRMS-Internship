@@ -12,11 +12,13 @@ import AdminLeaveView from './AdminLeaveView';
 import AdminPayrollView from './AdminPayrollView';
 import AdminRolesView from './AdminRolesView';
 import AdminSettingsView from './AdminSettingsView';
+import AdminUsersView from './AdminUsersView';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const sectionComponents = {
   dashboard: AdminDashboardHome,
+  users: AdminUsersView,
   employees: AdminEmployeesView,
   attendance: AdminAttendanceView,
   leave: AdminLeaveView,
