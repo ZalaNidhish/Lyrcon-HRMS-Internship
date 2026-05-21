@@ -59,15 +59,15 @@ const seedUser = async (userSeed) => {
     };
 
     if (userSeed.roleName === 'Super Admin') {
-      EmployeeModel = Employee.AdminEmployee;
+      EmployeeModel = Employee.Admin;
       employeeData.employeeCode = 'EMP-ADMIN';
       employeeData.adminLevel = 1;
     } else if (userSeed.roleName === 'HR') {
-      EmployeeModel = Employee.HREmployee;
+      EmployeeModel = Employee.HR;
       employeeData.employeeCode = 'EMP-HR';
       employeeData.hrSpecialization = 'Generalist';
     } else {
-      EmployeeModel = Employee.StaffEmployee;
+      EmployeeModel = Employee;
       employeeData.employeeCode = `EMP-${userSeed.key}`;
     }
 

@@ -54,24 +54,24 @@ exports.createEmployee = async (req, res) => {
             role: targetRole._id
         });
 
-        // 5. Select the correct Mongoose Discriminator Model and extract role-specific fields
+        // 5. Select the correct Mongoose Model and extract role-specific fields
         let EmployeeModel;
         let roleSpecificFields = {};
 
         if (targetRole.name === 'Super Admin') {
-            EmployeeModel = Employee.AdminEmployee;
+            EmployeeModel = Employee.Admin;
             roleSpecificFields = {
                 adminLevel: req.body.adminLevel,
                 systemAccessFlags: req.body.systemAccessFlags
             };
         } else if (targetRole.name === 'HR') {
-            EmployeeModel = Employee.HREmployee;
+            EmployeeModel = Employee.HR;
             roleSpecificFields = {
                 hrSpecialization: req.body.hrSpecialization,
                 assignedDepartments: req.body.assignedDepartments
             };
         } else {
-            EmployeeModel = Employee.StaffEmployee;
+            EmployeeModel = Employee; // Base model representing standard employees
             roleSpecificFields = {
                 probationStatus: req.body.probationStatus,
                 performanceRating: req.body.performanceRating

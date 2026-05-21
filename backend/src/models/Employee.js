@@ -122,6 +122,17 @@ const employeeSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+
+    probationStatus: {
+      type: String,
+      enum: ["Under Probation", "Confirmed", "Extended"],
+      default: "Under Probation",
+    },
+
+    performanceRating: {
+      type: Number,
+      default: 5,
+    },
   },
   {
     timestamps: true,
@@ -132,26 +143,8 @@ const employeeSchema = new mongoose.Schema(
 const Employee = mongoose.models.Employee || mongoose.model("Employee", employeeSchema);
 
 // Define Discriminators only if not already compiled
-if (!Employee.AdminEmployee) {
-  Employee.AdminEmployee = Employee.discriminator(
-    "Super Admin",
-    new mongoose.Schema({
-      adminLevel: {
-        type: Number,
-        default: 1,
-      },
-      systemAccessFlags: [
-        {
-          type: String,
-          default: "all",
-        },
-      ],
-    })
-  );
-}
-
-if (!Employee.HREmployee) {
-  Employee.HREmployee = Employee.discriminator(
+if (!Employee.HR) {
+  Employee.HR = Employee.discriminator(
     "HR",
     new mongoose.Schema({
       hrSpecialization: {
@@ -169,19 +162,20 @@ if (!Employee.HREmployee) {
   );
 }
 
-if (!Employee.StaffEmployee) {
-  Employee.StaffEmployee = Employee.discriminator(
-    "Staff",
+if (!Employee.Admin) {
+  Employee.Admin = Employee.discriminator(
+    "Super Admin",
     new mongoose.Schema({
-      probationStatus: {
-        type: String,
-        enum: ["Under Probation", "Confirmed", "Extended"],
-        default: "Under Probation",
-      },
-      performanceRating: {
+      adminLevel: {
         type: Number,
-        default: 5,
+        default: 1,
       },
+      systemAccessFlags: [
+        {
+          type: String,
+          default: "all",
+        },
+      ],
     })
   );
 }
