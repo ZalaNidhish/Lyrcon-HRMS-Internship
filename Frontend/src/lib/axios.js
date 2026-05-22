@@ -1,4 +1,4 @@
-﻿import axios from 'axios';
+import axios from 'axios';
 
 // Get API base URL from environment variables
 // Falls back to localhost:5000 if not defined during local development
@@ -42,8 +42,9 @@ API.interceptors.response.use(
 // ==========================================
 // 🔐 AUTHENTICATION ENDPOINTS 
 // ==========================================
-// FIXED: Removed the extra '/api' since it's already in your VITE_API_BASE_URL
-export const loginUser = (credentials) => API.post('/api/auth/login', credentials);
+export const loginUser = (credentials) => API.post('/auth/login', credentials);
+export const forgotPassword = (email) => API.post('/auth/forgot-password', { email });
+export const resetPassword = (token, newPassword) => API.post('/auth/reset-password', { token, newPassword });
 
 // ==========================================
 // 👥 EMPLOYEE ENDPOINTS
