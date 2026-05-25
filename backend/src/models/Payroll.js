@@ -88,7 +88,6 @@ const payrollSchema = new mongoose.Schema(
     }
 );
 
-// Optional index for quick searching of an employee's history or duplicate checks
 payrollSchema.index({ employeeId: 1, payrollMonth: 1 }, { unique: true });
 
 module.exports = mongoose.model("Payroll", payrollSchema);

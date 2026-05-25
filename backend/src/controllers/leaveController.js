@@ -4,7 +4,7 @@ const User = require('../models/User');
 const Role = require('../models/Role');
 const nodemailer = require('nodemailer');
 
-// Helper to send emails
+// 📧 Core Mailer Utility Engine
 const sendEmailNotification = async (to, subject, html) => {
     const hasSmtpCredentials = process.env.EMAIL_USER && process.env.EMAIL_PASS;
     if (hasSmtpCredentials) {
@@ -29,152 +29,205 @@ const sendEmailNotification = async (to, subject, html) => {
             console.error('[SMTP ERROR] Failed to send email:', error.message);
         }
     } else {
-        // Fallback for local testing
+        // Fallback for frictionless local team testing
         console.log('\n======================================================');
-        console.log(`📧  [EMAIL NOTIFICATION] To: ${to}`);
+        console.log(`📧   [EMAIL NOTIFICATION] To: ${to}`);
         console.log(`Subject: ${subject}`);
         console.log(`Body:\n${html.replace(/<[^>]*>?/gm, '')}`);
         console.log('======================================================\n');
     }
 };
 
-exports.getAllLeaves = async (req, res) => {
-    try {
-        const leaves = await Leave.find().populate('employeeId', 'firstName lastName email');
-        
-        // Format for frontend
-        const formattedLeaves = leaves.map(leave => {
-            const startStr = new Intl.DateTimeFormat('en-US', { month: 'short', day: '2-digit' }).format(new Date(leave.startDate));
-            const endStr = new Intl.DateTimeFormat('en-US', { month: 'short', day: '2-digit' }).format(new Date(leave.endDate));
-            
-            return {
-                id: leave._id,
-                employee: leave.employeeId ? `${leave.employeeId.firstName} ${leave.employeeId.lastName}` : 'Unknown Employee',
-                classification: leave.classification,
-                chronoRange: `${startStr} - ${endStr}`,
-                status: leave.status,
-                employeeEmail: leave.employeeId ? leave.employeeId.email : null
-            };
-        });
+const leaveController = {
+    // 📩 1. APPLY FOR LEAVE (Hardened with date guards & admin email alerts)
+    applyLeave: async (req, res) => {
+        try {
+            const { leaveType, startDate, endDate, reason } = req.body;
+            const userId = req.user.userId;
 
-        res.status(200).json(formattedLeaves);
-    } catch (error) {
-        console.error('Fetch Leaves Error:', error);
-        res.status(500).json({ message: 'Server Error', error: error.message });
-    }
-};
+            const start = new Date(startDate);
+            const end = new Date(endDate);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0); 
 
-exports.applyLeave = async (req, res) => {
-    try {
-        const { employeeId, classification, startDate, endDate, reason } = req.body;
-
-        const newLeave = new Leave({
-            employeeId,
-            classification,
-            startDate,
-            endDate,
-            reason
-        });
-
-        await newLeave.save();
-
-        // 1. Notify Admin (Action Required)
-        const adminRole = await Role.findOne({ name: 'Admin', isActive: true });
-        if (adminRole) {
-            const admins = await User.find({ role: adminRole._id, isActive: true });
-            
-            const employee = await Employee.findById(employeeId);
-            const employeeName = employee ? `${employee.firstName} ${employee.lastName}` : 'An employee';
-
-            for (const admin of admins) {
-                await sendEmailNotification(
-                    admin.email,
-                    `Action Required: New Leave Request from ${employeeName}`,
-                    `<div style="font-family: Arial, sans-serif; padding: 20px;">
-                        <h2 style="color: #211c6d;">New Leave Request Pending Approval</h2>
-                        <p>Hello ${admin.name},</p>
-                        <p><strong>${employeeName}</strong> has submitted a new leave request.</p>
-                        <ul>
-                            <li><strong>Type:</strong> ${classification}</li>
-                            <li><strong>Dates:</strong> ${new Date(startDate).toLocaleDateString()} to ${new Date(endDate).toLocaleDateString()}</li>
-                            <li><strong>Reason:</strong> ${reason || 'N/A'}</li>
-                        </ul>
-                        <p>Please log in to the CoreHR dashboard to review and approve/reject this request.</p>
-                    </div>`
-                );
+            if (start > end) {
+                return res.status(400).json({ message: "Start date cannot be after end date." });
             }
+            if (start < today) {
+                return res.status(400).json({ message: "Cannot apply for leave dates in the past." });
+            }
+
+            // Guard: Prevent double-booking overlapping slots
+            const overlappingLeave = await Leave.findOne({
+                userId,
+                status: { $in: ['Pending', 'Approved'] },
+                startDate: { $lte: end },
+                endDate: { $gte: start }
+            });
+
+            if (overlappingLeave) {
+                return res.status(400).json({ 
+                    message: `You already have a ${overlappingLeave.status.toLowerCase()} leave request within this date range.` 
+                });
+            }
+
+            const newLeave = new Leave({
+                userId,
+                leaveType,
+                startDate: start,
+                endDate: end,
+                reason
+            });
+
+            const savedLeave = await newLeave.save();
+
+            // 🚀 Task 5 Email Trigger: Notify Admin of New Leave Submission
+            try {
+                const adminRole = await Role.findOne({ name: { $regex: /^admin$/i }, isActive: true });
+                if (adminRole) {
+                    const admins = await User.find({ role: adminRole._id, isActive: true });
+                    const employeeProfile = await Employee.findOne({ userId });
+                    const employeeName = employeeProfile ? `${employeeProfile.firstName} ${employeeProfile.lastName}` : req.user.name || 'An employee';
+
+                    for (const admin of admins) {
+                        await sendEmailNotification(
+                            admin.email,
+                            `Action Required: New Leave Request from ${employeeName}`,
+                            `<div style="font-family: Arial, sans-serif; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px;">
+                                <h2 style="color: #211c6d;">New Leave Request Pending Approval</h2>
+                                <p>Hello ${admin.name},</p>
+                                <p><strong>${employeeName}</strong> has submitted a new leave request details:</p>
+                                <ul>
+                                    <li><strong>Leave Type:</strong> ${leaveType}</li>
+                                    <li><strong>Duration:</strong> ${start.toLocaleDateString()} to ${end.toLocaleDateString()}</li>
+                                    <li><strong>Reason:</strong> ${reason || 'N/A'}</li>
+                                </ul>
+                                <p>Please log in to the CoreHR dashboard to review this request.</p>
+                            </div>`
+                        );
+                    }
+                }
+            } catch (mailErr) {
+                console.error('Admin leave alert dispatch failure:', mailErr.message);
+            }
+
+            return res.status(201).json({ message: "Leave applied successfully", leave: savedLeave });
+        } catch (error) {
+            console.error("Apply Leave Error:", error);
+            return res.status(500).json({ message: "Server error applying for leave", error: error.message });
         }
+    },
 
-        res.status(201).json({ message: 'Leave request submitted successfully', leave: newLeave });
-    } catch (error) {
-        console.error('Apply Leave Error:', error);
-        res.status(500).json({ message: 'Server Error', error: error.message });
-    }
-};
-
-exports.processLeave = async (req, res) => {
-    try {
-        const { status } = req.body;
-        const leaveId = req.params.id;
-
-        if (!['Approved', 'Rejected'].includes(status)) {
-            return res.status(400).json({ message: 'Invalid status' });
+    // 🗂️ 2. GET LOGGED-IN USER'S LEAVE HISTORY
+    getMyLeaves: async (req, res) => {
+        try {
+            const userId = req.user.userId;
+            const leaves = await Leave.find({ userId }).sort({ createdAt: -1 });
+            return res.status(200).json(leaves);
+        } catch (error) {
+            console.error("Get My Leaves Error:", error);
+            return res.status(500).json({ message: "Server error fetching leave history", error: error.message });
         }
+    },
 
-        const leave = await Leave.findByIdAndUpdate(
-            leaveId,
-            { $set: { status } },
-            { new: true }
-        ).populate('employeeId');
+    // 📋 3. GET ALL PENDING LEAVES (For Management Interface Boards)
+    getPendingLeaves: async (req, res) => {
+        try {
+            const pendingLeaves = await Leave.find({ status: 'Pending' })
+                .populate('userId', 'name email') 
+                .sort({ startDate: 1 });
 
-        if (!leave) {
-            return res.status(404).json({ message: 'Leave request not found' });
+            return res.status(200).json(pendingLeaves);
+        } catch (error) {
+            console.error("Get Pending Leaves Error:", error);
+            return res.status(500).json({ message: "Server error fetching manager views", error: error.message });
         }
+    },
 
-        const employee = leave.employeeId;
-        if (employee) {
-            // 2. Notify Employee of the decision
-            await sendEmailNotification(
-                employee.email,
-                `Leave Request ${status} - CoreHR`,
-                `<div style="font-family: Arial, sans-serif; padding: 20px;">
-                    <h2 style="color: ${status === 'Approved' ? '#10b981' : '#ef4444'};">Leave Request ${status}</h2>
-                    <p>Hello ${employee.firstName},</p>
-                    <p>Your leave request has been <strong>${status.toLowerCase()}</strong> by Management.</p>
-                    <ul>
-                        <li><strong>Type:</strong> ${leave.classification}</li>
-                        <li><strong>Dates:</strong> ${new Date(leave.startDate).toLocaleDateString()} to ${new Date(leave.endDate).toLocaleDateString()}</li>
-                    </ul>
-                </div>`
-            );
+    // 🎛️ 4. APPROVE OR REJECT LEAVE (Triggers dual status notification updates)
+    reviewLeave: async (req, res) => {
+        try {
+            const { id } = req.params;
+            const { status, comments } = req.body;
+            const reviewerId = req.user.userId; 
 
-            // 3. Admin Override / FYI Notification to HR
-            const hrRole = await Role.findOne({ name: 'HR', isActive: true });
-            if (hrRole) {
-                const hrUsers = await User.find({ role: hrRole._id, isActive: true });
-                for (const hr of hrUsers) {
+            if (!['Approved', 'Rejected'].includes(status)) {
+                return res.status(400).json({ message: "Invalid status update. Choose 'Approved' or 'Rejected'." });
+            }
+
+            const updatedLeave = await Leave.findByIdAndUpdate(
+                id,
+                { 
+                    $set: { 
+                        status, 
+                        comments: comments || '', 
+                        reviewedBy: reviewerId 
+                    } 
+                },
+                { returnDocument: 'after', runValidators: true } // 🧼 Clean Mongoose warning fix
+            ).populate('userId', 'name email'); 
+
+            if (!updatedLeave) {
+                return res.status(404).json({ message: "Leave request record not found." });
+            }
+
+            // 🚀 Task 5 Email Trigger: Notify Employee & Dispatch FYI Alert to HR
+            try {
+                const targetEmployee = updatedLeave.userId;
+                const employeeProfile = await Employee.findOne({ userId: targetEmployee._id });
+                const employeeName = updatedLeave.userId?.name || 'Employee';
+
+                if (targetEmployee?.email) {
+                    // Alert A: Dispatch processing response directly to the worker
                     await sendEmailNotification(
-                        hr.email,
-                        `FYI: Leave Request ${status} by Admin`,
-                        `<div style="font-family: Arial, sans-serif; padding: 20px;">
-                            <h2 style="color: #4f46e5;">Admin Action: Leave Request ${status}</h2>
-                            <p>Hello ${hr.name},</p>
-                            <p>This is an FYI that an Admin has directly <strong>${status.toLowerCase()}</strong> the following leave request:</p>
+                        targetEmployee.email,
+                        `Leave Request ${status} - CoreHR`,
+                        `<div style="font-family: Arial, sans-serif; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px;">
+                            <h2 style="color: ${status === 'Approved' ? '#10b981' : '#ef4444'};">Leave Request ${status}</h2>
+                            <p>Hello ${employeeName},</p>
+                            <p>Your leave request has been processed with the following status: <strong>${status}</strong>.</p>
                             <ul>
-                                <li><strong>Employee:</strong> ${employee.firstName} ${employee.lastName}</li>
-                                <li><strong>Type:</strong> ${leave.classification}</li>
-                                <li><strong>Dates:</strong> ${new Date(leave.startDate).toLocaleDateString()} to ${new Date(leave.endDate).toLocaleDateString()}</li>
+                                <li><strong>Type:</strong> ${updatedLeave.leaveType}</li>
+                                <li><strong>Dates:</strong> ${new Date(updatedLeave.startDate).toLocaleDateString()} to ${new Date(updatedLeave.endDate).toLocaleDateString()}</li>
+                                <li><strong>Reviewer Comments:</strong> ${comments || 'None'}</li>
                             </ul>
-                            <p>No further action is required from you for this request.</p>
                         </div>`
                     );
                 }
-            }
-        }
 
-        res.status(200).json({ message: `Leave request ${status.toLowerCase()} successfully`, leave });
-    } catch (error) {
-        console.error('Process Leave Error:', error);
-        res.status(500).json({ message: 'Server Error', error: error.message });
+                // Alert B: Drop an informational FYI mailer into HR team boxes
+                const hrRole = await Role.findOne({ name: { $regex: /^hr$/i }, isActive: true });
+                if (hrRole) {
+                    const hrUsers = await User.find({ role: hrRole._id, isActive: true });
+                    for (const hr of hrUsers) {
+                        await sendEmailNotification(
+                            hr.email,
+                            `FYI: Leave Request ${status} Processed`,
+                            `<div style="font-family: Arial, sans-serif; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px;">
+                                <h3 style="color: #4f46e5;">HR Ledger Update: Leave ${status}</h3>
+                                <p>Hello ${hr.name},</p>
+                                <p>This is an automated operational notice that a leave request has been processed:</p>
+                                <ul>
+                                    <li><strong>Employee Name:</strong> ${employeeName}</li>
+                                    <li><strong>Employee Code:</strong> ${employeeProfile?.employeeCode || 'N/A'}</li>
+                                    <li><strong>Type:</strong> ${updatedLeave.leaveType}</li>
+                                    <li><strong>Timeline:</strong> ${new Date(updatedLeave.startDate).toLocaleDateString()} to ${new Date(updatedLeave.endDate).toLocaleDateString()}</li>
+                                    <li><strong>Final Status:</strong> ${status}</li>
+                                </ul>
+                            </div>`
+                        );
+                    }
+                }
+            } catch (mailErr) {
+                console.error('Leave response email chain dispatch error:', mailErr.message);
+            }
+
+            return res.status(200).json({ message: `Leave request status updated to ${status}`, leave: updatedLeave });
+        } catch (error) {
+            console.error("Review Leave Error:", error);
+            return res.status(500).json({ message: "Server error updating leave allocation", error: error.message });
+        }
     }
 };
+
+module.exports = leaveController;

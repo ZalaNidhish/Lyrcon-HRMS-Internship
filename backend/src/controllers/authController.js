@@ -1,4 +1,4 @@
-const bcrypt = require('bcrypt');
+﻿const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const nodemailer = require('nodemailer');
@@ -19,12 +19,14 @@ const authController = {
                 return res.status(400).json({ message: 'Email and password are required.' });
             }
 
+            // 1. Locate the user and populate their role data
             const user = await User.findOne({ email: normalizedEmail }).populate('role');
             if (!user || !user.isActive) {
                 console.log(`[LOGIN FAILED] User not found or inactive for email: ${normalizedEmail}`);
                 return res.status(400).json({ message: 'Invalid email or password' });
             }
 
+            // 2. Extract and check roles
             const roleName = String(user.role?.name || '').toLowerCase();
             const allowedRoles = new Set(['hr', 'admin', 'employee', 'super admin']);
 
@@ -42,20 +44,25 @@ const authController = {
                 return res.status(400).json({ message: 'Invalid email or password' });
             }
 
-            user.lastLogin = new Date();
-            await user.save();
+            // 4. Update audit metrics
+        await User.updateOne(
+            { _id: user._id },
+            { $set: { lastLogin: new Date() } }
+        );
 
+            // 5. Sign the token payload (Extended to 7d for smoother development testing!)
             const token = jwt.sign(
                 {
                     userId: user._id,
                     name: user.name,
-                    roleName: user.role?.name || 'HR',
+                    roleName: user.role?.name || 'Employee',
                     permissions: user.role?.permissions || [],
                 },
                 JWT_SECRET,
-                { expiresIn: '1d' }
+                { expiresIn: '7d' } 
             );
 
+            // 6. Return response to client
             res.status(200).json({
                 message: 'Login successful',
                 token,
@@ -63,7 +70,7 @@ const authController = {
                     id: user._id,
                     name: user.name,
                     email: user.email,
-                    role: roleName,
+                    role: user.role?.name || 'Employee',
                     permissions: user.role?.permissions || [],
                 },
             });

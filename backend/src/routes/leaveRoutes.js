@@ -1,12 +1,21 @@
 const express = require('express');
 const router = express.Router();
 const leaveController = require('../controllers/leaveController');
+const { verifyToken, checkPermission } = require('../middlewares/auth');
 
-// In a real app, you would add authentication middleware here
-// e.g. router.use(verifyToken);
+// Enforce global login token verification across all leave operational paths
+router.use(verifyToken);
 
-router.get('/', leaveController.getAllLeaves);
+// ==========================================
+// 👥 EMPLOYEE SELF-SERVICE PATHS
+// ==========================================
 router.post('/apply', leaveController.applyLeave);
-router.put('/process/:id', leaveController.processLeave);
+router.get('/my-requests', leaveController.getMyLeaves);
+
+// ==========================================
+// 👔 ADMINISTRATIVE & MANAGEMENT PANEL RESTRICTIONS
+// ==========================================
+router.get('/pending', checkPermission('leave.review'), leaveController.getPendingLeaves);
+router.put('/:id/review', checkPermission('leave.review'), leaveController.reviewLeave);
 
 module.exports = router;
