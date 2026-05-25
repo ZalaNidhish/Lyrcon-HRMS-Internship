@@ -27,7 +27,8 @@ const HRDashboardLayout = ({ user, onLogout }) => {
     recruitment: { title: "Recruitment", component: <RecruitmentView /> },
     announcements: { title: "Announcements", component: <AnnouncementsView /> },
     'roles-permissions': { title: "RBAC Access Control Engine", component: <RolesPermissionsView /> }, // FIXED: Added missing trailing comma here
-    assets: { title: "Asset Management", component: <AssetsPanel /> }
+    assets: { title: "Asset Management", component: <AssetsPanel /> },
+    announcements: { title: "Announcements", component: <AnnouncementsView /> }
   };
 
   const currentPage = pageMeta[activeTab] || pageMeta.dashboard;
