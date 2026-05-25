@@ -74,4 +74,12 @@ export const updateRolePermissions = (payload) => API.post('/roles/update', payl
 // ==========================================
 export const createDashboardUser = (payload) => API.post('/users', payload);
 
+// ==========================================
+// 📣 ANNOUNCEMENT & NOTIFICATION ENDPOINTS
+// ==========================================
+export const getAnnouncements = () => API.get('/announcements');
+export const publishAnnouncement = (payload) => API.post('/announcements', payload);
+export const markAnnouncementAsRead = (id) => API.post(`/announcements/${id}/read`);
+export const getTargetOptions = () => API.get('/announcements/targets');
+
 export default API;
