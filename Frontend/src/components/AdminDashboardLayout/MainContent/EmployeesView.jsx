@@ -164,11 +164,11 @@ const EmployeesView = () => {
     if (!query) return true;
 
     return (
-      emp.id.toLowerCase().includes(query) ||
-      emp.name.toLowerCase().includes(query) ||
-      emp.email.toLowerCase().includes(query) ||
-      emp.dept.toLowerCase().includes(query) ||
-      emp.role.toLowerCase().includes(query)
+      emp.id?.toLowerCase().includes(query) ||
+      emp.name?.toLowerCase().includes(query) ||
+      emp.email?.toLowerCase().includes(query) ||
+      emp.dept?.toLowerCase().includes(query) ||
+      emp.role?.toLowerCase().includes(query)
     );
   });
 

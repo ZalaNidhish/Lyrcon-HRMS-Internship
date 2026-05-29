@@ -22,7 +22,7 @@ const EmployeesView = () => {
 
   // Derives totals reactively relative to insertions or deletions against seed records
   const dynamicTotalStaff = baselineTotalStaff + Math.max(0, employeeDataList.length - 3);
-  const totalActiveInterns = baselineInternsThisMonth + Math.max(0, employeeDataList.filter(e => e.role.toLowerCase().includes('intern')).length - 1);
+  const totalActiveInterns = baselineInternsThisMonth + Math.max(0, employeeDataList.filter(e => e.role?.toLowerCase().includes('intern')).length - 1);
 
   // Computes progress-bar analytics cleanly using live status fields
   const q1VelocityRatio = Math.min(100, Math.round((dynamicTotalStaff / 185) * 100)); // Fixed targeting capacity at 185 profiles
@@ -175,11 +175,11 @@ const EmployeesView = () => {
     if (!query) return true;
 
     return (
-      emp.id.toLowerCase().includes(query) ||
-      emp.name.toLowerCase().includes(query) ||
-      emp.email.toLowerCase().includes(query) ||
-      emp.dept.toLowerCase().includes(query) ||
-      emp.role.toLowerCase().includes(query)
+      emp.id?.toLowerCase().includes(query) ||
+      emp.name?.toLowerCase().includes(query) ||
+      emp.email?.toLowerCase().includes(query) ||
+      emp.dept?.toLowerCase().includes(query) ||
+      emp.role?.toLowerCase().includes(query)
     );
   });
 
