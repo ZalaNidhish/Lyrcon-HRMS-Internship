@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const nodemailer = require('nodemailer');
 const User = require('../models/User');
+const Employee = require('../models/Employee'); // ✅ ADDED: Import for cross-referencing Day 1 profile records
 
 const JWT_SECRET = process.env.JWT_SECRET || 'fallback_secret_key';
 
@@ -50,13 +51,17 @@ const authController = {
                 { $set: { lastLogin: new Date() } }
             );
 
-            // 5. Sign the token payload (Extended to 7d for smoother development testing!)
+            // 🔍 FIXED: Locate this user's corporate profile to append the employee tracking context
+            const employeeProfile = await Employee.findOne({ userId: user._id, isDeleted: false });
+
+            // 5. Sign the token payload
             const token = jwt.sign(
                 {
                     userId: user._id,
                     name: user.name,
                     roleName: user.role?.name || 'Employee',
                     permissions: user.role?.permissions || [],
+                    employeeId: employeeProfile ? employeeProfile._id : null // ✅ FIXED: Appended for Day 1 middleware support
                 },
                 JWT_SECRET,
                 { expiresIn: '7d' } 
@@ -73,6 +78,7 @@ const authController = {
                     role: user.role?.name || 'Employee',
                     permissions: user.role?.permissions || [],
                     mustChangePassword: user.mustChangePassword,
+                    hasFaceEmbedding: !!(user.faceEmbedding && user.faceEmbedding.length > 0), // ✅ ADDED: Injected to help frontend force face registration setup wizard instantly
                 },
             });
         } catch (error) {
@@ -91,16 +97,13 @@ const authController = {
             const normalizedEmail = String(email).trim().toLowerCase();
             const user = await User.findOne({ email: normalizedEmail });
 
-            // Security best practice: prevent email scanning by returning successful response
             if (!user || !user.isActive) {
                 return res.status(200).json({ message: 'If that email exists in our system, a password reset link has been sent.' });
             }
 
-            // Generate secure token
             const rawToken = crypto.randomBytes(32).toString('hex');
             const hashedToken = crypto.createHash('sha256').update(rawToken).digest('hex');
 
-            // Save hashed token and expiry date (1 hour from now)
             user.resetPasswordToken = hashedToken;
             user.resetPasswordExpires = Date.now() + 3600000;
             await user.save();
@@ -108,7 +111,6 @@ const authController = {
             const clientUrl = process.env.CLIENT_URL || 'http://localhost:5173';
             const resetUrl = `${clientUrl}/reset-password?token=${rawToken}`;
 
-            // Configure SMTP mailer transport
             const hasSmtpCredentials = process.env.EMAIL_USER && process.env.EMAIL_PASS;
             let emailSentSuccessfully = false;
             let emailErrorDetails = null;
@@ -125,7 +127,6 @@ const authController = {
                     };
                     const transporter = nodemailer.createTransport(smtpConfig);
 
-                    // Send custom HTML recovery email
                     await transporter.sendMail({
                         from: '"CoreHR Security" <security@lyrcon.com>',
                         to: user.email,
@@ -155,13 +156,12 @@ const authController = {
             }
 
             if (!emailSentSuccessfully) {
-                // Developer Mode Fallback: Log link directly to the console for frictionless local testing
                 console.log('\n======================================================');
                 console.log('🔑  [FALLBACK MODE] PASSWORD RESET REQUEST  🔑');
                 console.log(`User Email: ${user.email}`);
                 console.log(`Reset URL:  ${resetUrl}`);
                 if (emailErrorDetails) {
-                    console.log(`Reason:     SMTP failed (${emailErrorDetails})`);
+                    console.log(`Reason:      SMTP failed (${emailErrorDetails})`);
                 }
                 console.log('======================================================\n');
             }
@@ -186,7 +186,6 @@ const authController = {
 
             const hashedToken = crypto.createHash('sha256').update(String(token)).digest('hex');
 
-            // Find unexpired matching user
             const user = await User.findOne({
                 resetPasswordToken: hashedToken,
                 resetPasswordExpires: { $gt: Date.now() },
@@ -196,7 +195,6 @@ const authController = {
                 return res.status(400).json({ message: 'Invalid or expired password reset token.' });
             }
 
-            // Hash the password with bcrypt and update
             user.password = await bcrypt.hash(String(newPassword), 10);
             user.resetPasswordToken = null;
             user.resetPasswordExpires = null;
@@ -212,7 +210,7 @@ const authController = {
     changePassword: async (req, res) => {
         try {
             const { currentPassword, newPassword } = req.body;
-            const userId = req.user.id; // from verifyToken middleware
+            const userId = req.user.id || req.user.userId; // Secure extraction check handling both middleware variations safely
 
             if (!currentPassword || !newPassword) {
                 return res.status(400).json({ message: 'Current password and new password are required.' });
@@ -249,7 +247,6 @@ const authController = {
                 return res.status(400).json({ message: 'Google access token is required.' });
             }
 
-            // Fetch user profile from Google using the access token
             const googleResponse = await fetch(`https://www.googleapis.com/oauth2/v3/userinfo?access_token=${token}`);
             if (!googleResponse.ok) {
                 console.error('[GOOGLE LOGIN FAILED] Invalid token response from Google');
@@ -263,7 +260,6 @@ const authController = {
                 return res.status(400).json({ message: 'Could not retrieve email from your Google account.' });
             }
 
-            // Check if the user exists in the HRMS database
             const user = await User.findOne({ email }).populate('role');
             if (!user || !user.isActive) {
                 console.log(`[GOOGLE LOGIN FAILED] Unregistered or inactive email: ${email}`);
@@ -272,7 +268,6 @@ const authController = {
                 });
             }
 
-            // Extract and verify roles
             const roleName = String(user.role?.name || '').toLowerCase();
             const allowedRoles = new Set(['hr', 'admin', 'employee', 'super admin']);
             const normalized = roleName === 'super admin' ? 'admin' : roleName;
@@ -282,8 +277,10 @@ const authController = {
                 return res.status(403).json({ message: 'Unauthorized role. Access denied.' });
             }
 
-            // Update last login
             await User.updateOne({ _id: user._id }, { $set: { lastLogin: new Date() } });
+
+            // 🔍 FIXED: Cross-reference this Google account profile to extract the corporate employee tracking details
+            const googleEmployeeProfile = await Employee.findOne({ userId: user._id, isDeleted: false });
 
             // Generate JWT
             const jwtToken = jwt.sign(
@@ -292,12 +289,12 @@ const authController = {
                     name: user.name,
                     roleName: user.role?.name || 'Employee',
                     permissions: user.role?.permissions || [],
+                    employeeId: googleEmployeeProfile ? googleEmployeeProfile._id : null // ✅ FIXED: Mapped for unified route tracking compliance
                 },
                 JWT_SECRET,
                 { expiresIn: '7d' } 
             );
 
-            // Return response
             res.status(200).json({
                 message: 'Google Login successful',
                 token: jwtToken,
@@ -308,6 +305,7 @@ const authController = {
                     role: user.role?.name || 'Employee',
                     permissions: user.role?.permissions || [],
                     mustChangePassword: user.mustChangePassword,
+                    hasFaceEmbedding: !!(user.faceEmbedding && user.faceEmbedding.length > 0) // ✅ ADDED: Support flag for frontend setup loops
                 },
             });
         } catch (error) {

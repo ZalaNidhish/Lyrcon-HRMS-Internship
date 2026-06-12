@@ -6,7 +6,7 @@ const OFFICE_STATIC_IP = process.env.OFFICE_PUBLIC_IP || '127.0.0.1';
 const attendanceController = {
     clockIn: async (req, res) => {
         try {
-            const userId = req.user.userId;
+            const userId = req.user?.userId || req.user?.id; // ✅ SAFE CHECK: Support multi-signature tokens
             const { deviceFingerprint } = req.body;
 
             const clientIp = req.headers['x-forwarded-for']?.split(',')[0].trim() || req.socket.remoteAddress;
@@ -15,7 +15,9 @@ const attendanceController = {
                 return res.status(400).json({ message: "Hardware device fingerprint payload missing." });
             }
 
-            // 🛑 SECURITY GUARD: IP Network Whitelist Check
+            const clientUserAgent = req.headers['user-agent'] || 'Unknown Device';
+
+            // 🛑 SECURITY GUARD 1: IP Network Whitelist Check
             const cleanIp = clientIp.includes('::1') ? '127.0.0.1' : clientIp.replace(/^.*:/, '');
             if (cleanIp !== OFFICE_STATIC_IP && process.env.NODE_ENV === 'production') {
                 return res.status(403).json({
@@ -30,11 +32,9 @@ const attendanceController = {
 
             // 🛑 SECURITY GUARD 2: Device Locking / Buddy-Punch Guard
             if (!employeeProfile.registeredDeviceFingerprint) {
-
-                // 🛡️ NEW UNIQUE CHECK: Ensure NO OTHER employee has already registered this device!
                 const deviceExists = await Employee.findOne({
                     registeredDeviceFingerprint: deviceFingerprint,
-                    _id: { $ne: employeeProfile._id } // Not this employee
+                    _id: { $ne: employeeProfile._id }
                 });
 
                 if (deviceExists) {
@@ -43,7 +43,6 @@ const attendanceController = {
                     });
                 }
 
-                // If the device is clean, lock it to this account permanently
                 employeeProfile.registeredDeviceFingerprint = deviceFingerprint;
                 await employeeProfile.save();
 
@@ -55,7 +54,6 @@ const attendanceController = {
 
             const todayStr = new Date().toISOString().split('T')[0];
             const currentHour = new Date().getHours();
-
             const recordStatus = currentHour >= 10 ? 'Late' : 'Present';
 
             const newLog = new Attendance({
@@ -81,7 +79,7 @@ const attendanceController = {
 
     clockOut: async (req, res) => {
         try {
-            const userId = req.user.userId;
+            const userId = req.user?.userId || req.user?.id; // ✅ SAFE CHECK
             const todayStr = new Date().toISOString().split('T')[0];
 
             const employeeProfile = await Employee.findOne({ userId });
@@ -140,7 +138,7 @@ const attendanceController = {
 
     getMyLogs: async (req, res) => {
         try {
-            const userId = req.user?.userId || req.user?.id;
+            const userId = req.user?.userId || req.user?.id; // ✅ SAFE CHECK: Normalizes token key variation bugs
             if (!userId) {
                 return res.status(401).json({ message: "Unable to determine authenticated user." });
             }

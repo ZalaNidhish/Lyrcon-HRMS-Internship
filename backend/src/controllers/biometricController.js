@@ -12,20 +12,42 @@ const biometricController = {
     // ═════════════════════════════════════════════════════════════════════════
     registerFace: async (req, res) => {
         try {
-            const { embedding, deviceId } = req.body; // Expect arrays from frontend team
+            const { embedding, deviceId } = req.body; 
+            const trackingUserId = req.user?.userId || req.user?.id; // ✅ SAFE CHECK: Handle both token styles cleanly
 
             if (!Array.isArray(embedding) || embedding.length === 0) {
                 return res.status(400).json({ message: "Invalid or empty face feature array payload." });
             }
 
-            const user = await User.findById(req.user.userId);
+            const user = await User.findById(trackingUserId);
             if (!user) return res.status(404).json({ message: "User session context isolated." });
 
+            // Lock the vector coordinates down permanently
             user.faceEmbedding = embedding;
-            if (deviceId) user.trustedDeviceId = deviceId; // Lock device footprint profile
+            if (deviceId) user.trustedDeviceId = deviceId; 
             await user.save();
 
-            return res.status(200).json({ message: "Facial metrics mapped and securely saved to your ledger!" });
+            // 🔍 FIXED: Double check if the baseline corporate profile reference needs linking
+            const employeeProfile = await Employee.findOne({ userId: user._id, isDeleted: false });
+            
+            // Generate a fresh, fully upgraded authentication token to pass downstream
+            const upgradedToken = jwt.sign(
+                {
+                    userId: user._id,
+                    name: user.name,
+                    roleName: user.role?.name || 'Employee',
+                    permissions: user.role?.permissions || [],
+                    employeeId: employeeProfile ? employeeProfile._id : null // Now populated securely!
+                },
+                JWT_SECRET,
+                { expiresIn: '7d' }
+            );
+
+            return res.status(200).json({ 
+                message: "Facial metrics mapped and securely saved to your ledger!",
+                token: upgradedToken, // Pass back the upgraded token so frontend updates state silently
+                hasFaceEmbedding: true
+            });
         } catch (error) {
             console.error("Face registration error:", error);
             return res.status(500).json({ message: "Failed to persist face data.", error: error.message });
@@ -60,7 +82,6 @@ const biometricController = {
                 return res.status(401).json({ message: "Biometric identification failed. Face signature does not match." });
             }
 
-            // Optional: Device tracking layer validation check
             if (user.trustedDeviceId && deviceId && user.trustedDeviceId !== deviceId) {
                 console.log(`[ALERT] User verified face but on un-mapped hardware layout device profile.`);
             }
@@ -76,7 +97,7 @@ const biometricController = {
                     name: user.name,
                     roleName: user.role?.name || 'Employee',
                     permissions: user.role?.permissions || [],
-                    employeeId: employeeProfile?._id || null
+                    employeeId: employeeProfile ? employeeProfile._id : null
                 },
                 JWT_SECRET,
                 { expiresIn: '7d' }
@@ -90,7 +111,8 @@ const biometricController = {
                     name: user.name,
                     email: user.email,
                     role: user.role?.name || 'Employee',
-                    employeeCode: employeeProfile?.employeeCode || 'SYS-ADMIN'
+                    permissions: user.role?.permissions || [],
+                    employeeCode: employeeProfile ? employeeProfile.employeeCode : 'SYS-ADMIN'
                 }
             });
         } catch (error) {
